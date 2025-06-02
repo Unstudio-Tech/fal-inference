@@ -17,6 +17,7 @@ export default function Home() {
   const [inpaintingStyleLora, setInpaintingStyleLora] = useState("");
   const [inpaintingStyleLoraScale, setInpaintingStyleLoraScale] = useState(0.6);
   const [inpaintingStyleLoraStrength, setInpaintingStyleLoraStrength] = useState(0.5);
+  const [noOfImages, setNoOfImages] = useState(1);
 
   const handleForm = () => {
     // Check if all required fields are filled
@@ -34,7 +35,8 @@ export default function Home() {
       loraScale2,
       inpaintingStyleLora,
       inpaintingStyleLoraScale,
-      inpaintingStyleLoraStrength
+      inpaintingStyleLoraStrength,
+      noOfImages
     });
   };
 
@@ -57,6 +59,8 @@ export default function Home() {
   const resetInpaintingStyleLora = () => setInpaintingStyleLora("");
   const resetInpaintingStyleLoraScale = () => setInpaintingStyleLoraScale(0.6);
   const resetInpaintingStyleLoraStrength = () => setInpaintingStyleLoraStrength(0.5);
+  const resetNoOfImages = () => setNoOfImages(1);
+
 
   return (
     <div className="flex min-h-screen bg-[#121212] text-white">
@@ -87,7 +91,7 @@ export default function Home() {
               </Tooltip>
             </TooltipProvider>
           </div>
-          <textarea 
+          <textarea
             className="w-full h-24 bg-[#1e1e1e] border border-gray-700 rounded-md p-3 text-sm"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
@@ -384,6 +388,45 @@ export default function Home() {
                 <span>↺</span>
               </Button>
             </div>
+
+            {/* No of images */}
+            <div className="mb-4">
+              <div className="flex items-center mb-2">
+                <label className="text-sm font-medium ml-4">No of images</label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-5 w-5 ml-2">
+                        <Info size={14} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Enter the number of images to generate</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="flex">
+                <Input
+                  className="flex-1 bg-[#1e1e1e] border border-gray-700"
+                  type="number"
+                  min={1}
+                  value={noOfImages}
+                  onChange={(e) => setNoOfImages(Number(e.target.value))}
+                  placeholder="Enter number of images..."
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="ml-2 text-black"
+                  onClick={resetNoOfImages} // <-- make sure this function exists
+                >
+                  <span className="sr-only">Reset</span>
+                  <span>↺</span>
+                </Button>
+              </div>
+            </div>
+
           </div>
 
           {/* Add item button */}
