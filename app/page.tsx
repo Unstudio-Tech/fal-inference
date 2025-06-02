@@ -16,21 +16,22 @@ export default function Home() {
   // State for form values
   const [prompt, setPrompt] = useState("");
   const [loraPath1, setLoraPath1] = useState("");
-  const [loraScale1, setLoraScale1] = useState(0.6);
+  const [loraScale1, setLoraScale1] = useState(0.9);
   const [loraPath2, setLoraPath2] = useState("");
-  const [loraScale2, setLoraScale2] = useState(0.9);
+  const [loraScale2, setLoraScale2] = useState(0.4);
   const [inpaintingStyleLora, setInpaintingStyleLora] = useState("");
   const [inpaintingStyleLoraScale, setInpaintingStyleLoraScale] = useState(0.6);
   const [inpaintingStyleLoraStrength, setInpaintingStyleLoraStrength] =
     useState(0.5);
   const [resultImages, setResultImages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleForm = async () => {
-    if (!prompt || !loraPath1 || !loraPath2 ) {
+    if (!prompt || !loraPath1 || !loraPath2) {
       alert("Please fill in all required fields");
       return;
     }
-
+    setIsLoading(true); // Start loading
     const requestBody = {
       prompt,
       loraPaths: [
@@ -66,6 +67,8 @@ export default function Home() {
     } catch (error) {
       console.error("❌ Fetch error:", error);
       alert("An error occurred during inference.");
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -96,10 +99,6 @@ export default function Home() {
       <div className="w-full md:w-1/2 p-6 border-r border-gray-800">
         <div className="mb-6 flex justify-between items-center">
           <h2 className="text-xl font-semibold">Input</h2>
-          <Button variant="outline" className="gap-2 text-black">
-            <Upload size={16} />
-            Form
-          </Button>
         </div>
 
         {/* Prompt */}
@@ -213,7 +212,7 @@ export default function Home() {
             <div className="flex items-center">
               <div className="flex-1 mr-2">
                 <Slider
-                  defaultValue={[0.6]}
+                  defaultValue={[0.9]}
                   max={1}
                   step={0.01}
                   value={[loraScale1]}
@@ -311,7 +310,7 @@ export default function Home() {
             <div className="flex items-center">
               <div className="flex-1 mr-2">
                 <Slider
-                  defaultValue={[0.9]}
+                  defaultValue={[0.4]}
                   max={1}
                   step={0.01}
                   value={[loraScale2]}
@@ -492,7 +491,7 @@ export default function Home() {
             </div>
 
             {/* No of images */}
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <div className="flex items-center mb-2">
                 <label className="text-sm font-medium ml-4">No of images</label>
                 <TooltipProvider>
@@ -508,7 +507,7 @@ export default function Home() {
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              {/* <div className="flex">
+              <div className="flex">
                 <Input
                   className="flex-1 bg-[#1e1e1e] border border-gray-700"
                   type="number"
@@ -526,9 +525,8 @@ export default function Home() {
                   <span className="sr-only">Reset</span>
                   <span>↺</span>
                 </Button>
-              </div> */}
-            </div>
-
+              </div>
+            </div> */}
           </div>
 
           {/* Add item button */}
@@ -547,11 +545,12 @@ export default function Home() {
             Reset
           </Button>
           <Button
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-purple-500 hover:bg-purple-700 px-6 py-2"
             onClick={handleForm}
+            disabled={isLoading}
           >
-            Run
-          </Button>
+            {isLoading ? "Running..." : "Run"}
+          </Button>{" "}
         </div>
       </div>
 
@@ -560,13 +559,14 @@ export default function Home() {
         <div className="mb-6 flex justify-between items-center">
           <div className="flex items-center">
             <h2 className="text-xl font-semibold mr-2">Result</h2>
-            <span className="bg-green-600 text-xs px-2 py-0.5 rounded">
-              Completed
-            </span>
+            <span
+              className={`text-xs px-2 py-0.5 rounded ${
+                isLoading ? "bg-yellow-500" : "bg-green-600"
+              }`}
+            >
+              {isLoading ? "Generating..." : "Completed"}
+            </span>{" "}
           </div>
-          <Button variant="outline" className="gap-2">
-            Preview
-          </Button>
         </div>
         {/* Results grid */}
         <div className="grid grid-cols-2 gap-4">
@@ -589,7 +589,7 @@ export default function Home() {
                   />
                   <a
                     href={url}
-                    download
+                    download={`generated-image-${index + 1}.jpg`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -603,7 +603,7 @@ export default function Home() {
                   </a>
                 </div>
               ))}
-        </div>{" "}
+        </div>
       </div>
     </div>
   );
