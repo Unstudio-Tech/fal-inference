@@ -23,6 +23,7 @@ interface RequestBody {
   numberOfImages: number;
   strength: number;
   inpaintingStyleLoraScale:number;
+  inpaintingCharacterLoraScale:number;
 }
 
 interface MaskAPIResponse {
@@ -38,7 +39,7 @@ interface MaskAPIResponse {
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as RequestBody;
-    const { prompt, loraPaths, numberOfImages, strength,inpaintingStyleLoraScale } = body;
+    const { prompt, loraPaths, numberOfImages, strength,inpaintingStyleLoraScale,inpaintingCharacterLoraScale } = body;
     //console.log('Lora paths initially : ', loraPaths)
     const loraPathsForInference = loraPaths;
     //console.log(loraPathsForInference)
@@ -54,8 +55,8 @@ export async function POST(req: NextRequest) {
         image_size: { width: 800, height: 1200 },
         num_inference_steps: 28}
 
-      console.log("Payload ")
-      console.log(payload)
+     // console.log("Payload ")
+    //  console.log(payload)
 
       return fal.subscribe('fal-ai/flux-lora', {
         input: payload
@@ -66,8 +67,14 @@ export async function POST(req: NextRequest) {
     const rawImageUrls: string[] = responses.map((res) => res?.data?.images?.[0]?.url).filter(Boolean);
     console.log('FAL Inferences done!')
 
-    const loraPathsForInpainting = loraPaths;
-    
+    const loraPathsForInpainting = loraPaths.map((lora, index) => ({
+        path: lora.loraPath,
+        scale: index === 0 ? inpaintingCharacterLoraScale :
+               index === 1 ? inpaintingStyleLoraScale :
+               lora.scale,
+      }));
+      
+    console.log("Lora paths for inpainting " , loraPathsForInpainting)    
 
     const finalImageUrls: string[] = [];
     for (const imageUrl of rawImageUrls) {
