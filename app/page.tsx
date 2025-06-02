@@ -5,7 +5,12 @@ import { Info, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function Home() {
   // State for form values
@@ -16,26 +21,52 @@ export default function Home() {
   const [loraScale2, setLoraScale2] = useState(0.9);
   const [inpaintingStyleLora, setInpaintingStyleLora] = useState("");
   const [inpaintingStyleLoraScale, setInpaintingStyleLoraScale] = useState(0.6);
-  const [inpaintingStyleLoraStrength, setInpaintingStyleLoraStrength] = useState(0.5);
+  const [inpaintingStyleLoraStrength, setInpaintingStyleLoraStrength] =
+    useState(0.5);
+  const [resultImages, setResultImages] = useState<string[]>([]);
 
-  const handleForm = () => {
-    // Check if all required fields are filled
-    if (!prompt || !loraPath1 || !loraPath2 || !inpaintingStyleLora) {
+  const handleForm = async () => {
+    if (!prompt || !loraPath1 || !loraPath2 ) {
       alert("Please fill in all required fields");
       return;
     }
 
-    // Log all form values
-    console.log({
+    const requestBody = {
       prompt,
-      loraPath1,
-      loraScale1,
-      loraPath2,
-      loraScale2,
-      inpaintingStyleLora,
+      loraPaths: [
+        { loraPath: loraPath1, scale: loraScale1 },
+        { loraPath: loraPath2, scale: loraScale2 },
+        // { loraPath: inpaintingStyleLora, scale: inpaintingStyleLoraScale },
+      ],
+      numberOfImages: 4, // or any number you want to generate
+      strength: inpaintingStyleLoraStrength,
       inpaintingStyleLoraScale,
-      inpaintingStyleLoraStrength
-    });
+    };
+
+    try {
+      const response = await fetch("/api/inference", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        console.error("❌ Error:", errData);
+        alert("Something went wrong. Check the console for more details.");
+        return;
+      }
+
+      const data = await response.json();
+      console.log("✅ Generated image URLs:", data.imageUrls);
+      // TODO: Set to state for preview display
+      setResultImages(data.imageUrls);
+    } catch (error) {
+      console.error("❌ Fetch error:", error);
+      alert("An error occurred during inference.");
+    }
   };
 
   const handleReset = () => {
@@ -56,10 +87,11 @@ export default function Home() {
   const resetLoraScale2 = () => setLoraScale2(0.9);
   const resetInpaintingStyleLora = () => setInpaintingStyleLora("");
   const resetInpaintingStyleLoraScale = () => setInpaintingStyleLoraScale(0.6);
-  const resetInpaintingStyleLoraStrength = () => setInpaintingStyleLoraStrength(0.5);
+  const resetInpaintingStyleLoraStrength = () =>
+    setInpaintingStyleLoraStrength(0.5);
 
   return (
-    <div className="flex min-h-screen bg-[#121212] text-white">
+    <div className="flex min-h-screen bg-[#1e1c1c] text-white">
       {/* Left panel - Input form */}
       <div className="w-full md:w-1/2 p-6 border-r border-gray-800">
         <div className="mb-6 flex justify-between items-center">
@@ -87,7 +119,7 @@ export default function Home() {
               </Tooltip>
             </TooltipProvider>
           </div>
-          <textarea 
+          <textarea
             className="w-full h-24 bg-[#1e1e1e] border border-gray-700 rounded-md p-3 text-sm"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
@@ -116,11 +148,17 @@ export default function Home() {
           {/* First LoRA Path */}
           <div className="mb-4">
             <div className="flex items-center mb-2">
-              <label className="text-sm font-medium ml-4">Path</label>
+              <label className="text-sm font-medium ml-4">
+                Character Lora Path
+              </label>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-5 w-5 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 ml-2"
+                    >
                       <Info size={14} />
                     </Button>
                   </TooltipTrigger>
@@ -137,7 +175,12 @@ export default function Home() {
                 onChange={(e) => setLoraPath1(e.target.value)}
                 placeholder="https://v3.fal.media/files/monkey/..."
               />
-              <Button variant="outline" size="icon" className="ml-2" onClick={resetLoraPath1}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="ml-2"
+                onClick={resetLoraPath1}
+              >
                 <span className="sr-only">Delete</span>
                 <span>🗑️</span>
               </Button>
@@ -147,11 +190,17 @@ export default function Home() {
           {/* First LoRA Scale */}
           <div className="mb-4">
             <div className="flex items-center mb-2">
-              <label className="text-sm font-medium ml-4">Scale</label>
+              <label className="text-sm font-medium ml-4">
+                Character Lora Scale
+              </label>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-5 w-5 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 ml-2"
+                    >
                       <Info size={14} />
                     </Button>
                   </TooltipTrigger>
@@ -182,7 +231,12 @@ export default function Home() {
                   className="bg-[#1e1e1e] border border-gray-700"
                 />
               </div>
-              <Button variant="outline" size="icon" className="ml-2 text-black" onClick={resetLoraScale1}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="ml-2 text-black"
+                onClick={resetLoraScale1}
+              >
                 <span className="sr-only">Reset</span>
                 <span>↺</span>
               </Button>
@@ -192,11 +246,17 @@ export default function Home() {
           {/* Second LoRA Path */}
           <div className="mb-4">
             <div className="flex items-center mb-2">
-              <label className="text-sm font-medium ml-4">Path</label>
+              <label className="text-sm font-medium ml-4">
+                Style Lora Path
+              </label>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-5 w-5 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 ml-2"
+                    >
                       <Info size={14} />
                     </Button>
                   </TooltipTrigger>
@@ -213,7 +273,12 @@ export default function Home() {
                 onChange={(e) => setLoraPath2(e.target.value)}
                 placeholder="https://v3.fal.media/files/monkey/..."
               />
-              <Button variant="outline" size="icon" className="ml-2 text-black" onClick={resetLoraPath2}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="ml-2 text-black"
+                onClick={resetLoraPath2}
+              >
                 <span className="sr-only">Delete</span>
                 <span>🗑️</span>
               </Button>
@@ -223,11 +288,17 @@ export default function Home() {
           {/* Second LoRA Scale */}
           <div className="mb-4">
             <div className="flex items-center mb-2">
-              <label className="text-sm font-medium ml-4">Scale</label>
+              <label className="text-sm font-medium ml-4">
+                Style Lora Scale
+              </label>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-5 w-5 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 ml-2"
+                    >
                       <Info size={14} />
                     </Button>
                   </TooltipTrigger>
@@ -258,7 +329,12 @@ export default function Home() {
                   className="bg-[#1e1e1e] border border-gray-700"
                 />
               </div>
-              <Button variant="outline" size="icon" className="ml-2 text-black" onClick={resetLoraScale2}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="ml-2 text-black"
+                onClick={resetLoraScale2}
+              >
                 <span className="sr-only">Reset</span>
                 <span>↺</span>
               </Button>
@@ -266,7 +342,7 @@ export default function Home() {
           </div>
 
           {/* New Inpainting Style LoRA */}
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <div className="flex items-center mb-2">
               <label className="text-sm font-medium ml-4">Inpainting style lora</label>
               <TooltipProvider>
@@ -294,16 +370,22 @@ export default function Home() {
                 <span>↺</span>
               </Button>
             </div>
-          </div>
+          </div> */}
 
           {/* Inpainting Style LoRA Scale */}
           <div className="mb-4">
             <div className="flex items-center mb-2">
-              <label className="text-sm font-medium ml-4">Inpainting style lora scale</label>
+              <label className="text-sm font-medium ml-4">
+                Inpainting style lora scale
+              </label>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-5 w-5 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 ml-2"
+                    >
                       <Info size={14} />
                     </Button>
                   </TooltipTrigger>
@@ -320,7 +402,9 @@ export default function Home() {
                   max={1}
                   step={0.01}
                   value={[inpaintingStyleLoraScale]}
-                  onValueChange={(values) => setInpaintingStyleLoraScale(values[0])}
+                  onValueChange={(values) =>
+                    setInpaintingStyleLoraScale(values[0])
+                  }
                 />
               </div>
               <div className="w-16">
@@ -330,11 +414,18 @@ export default function Home() {
                   max={1}
                   step={0.01}
                   value={inpaintingStyleLoraScale}
-                  onChange={(e) => setInpaintingStyleLoraScale(Number(e.target.value))}
+                  onChange={(e) =>
+                    setInpaintingStyleLoraScale(Number(e.target.value))
+                  }
                   className="bg-[#1e1e1e] border border-gray-700"
                 />
               </div>
-              <Button variant="outline" size="icon" className="ml-2 text-black" onClick={resetInpaintingStyleLoraScale}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="ml-2 text-black"
+                onClick={resetInpaintingStyleLoraScale}
+              >
                 <span className="sr-only">Reset</span>
                 <span>↺</span>
               </Button>
@@ -344,11 +435,17 @@ export default function Home() {
           {/* Inpainting Style LoRA Strength */}
           <div className="mb-4">
             <div className="flex items-center mb-2">
-              <label className="text-sm font-medium ml-4">Inpainting style lora strength</label>
+              <label className="text-sm font-medium ml-4">
+                Inpainting style lora strength
+              </label>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-5 w-5 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 ml-2"
+                    >
                       <Info size={14} />
                     </Button>
                   </TooltipTrigger>
@@ -365,7 +462,9 @@ export default function Home() {
                   max={1}
                   step={0.01}
                   value={[inpaintingStyleLoraStrength]}
-                  onValueChange={(values) => setInpaintingStyleLoraStrength(values[0])}
+                  onValueChange={(values) =>
+                    setInpaintingStyleLoraStrength(values[0])
+                  }
                 />
               </div>
               <div className="w-16">
@@ -375,11 +474,18 @@ export default function Home() {
                   max={1}
                   step={0.01}
                   value={inpaintingStyleLoraStrength}
-                  onChange={(e) => setInpaintingStyleLoraStrength(Number(e.target.value))}
+                  onChange={(e) =>
+                    setInpaintingStyleLoraStrength(Number(e.target.value))
+                  }
                   className="bg-[#1e1e1e] border border-gray-700"
                 />
               </div>
-              <Button variant="outline" size="icon" className="ml-2 text-black" onClick={resetInpaintingStyleLoraStrength}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="ml-2 text-black"
+                onClick={resetInpaintingStyleLoraStrength}
+              >
                 <span className="sr-only">Reset</span>
                 <span>↺</span>
               </Button>
@@ -387,15 +493,26 @@ export default function Home() {
           </div>
 
           {/* Add item button */}
-          <Button variant="outline" className="mt-2 text-black">
+          {/* <Button variant="outline" className="mt-2 text-black">
             + Add item
-          </Button>
+          </Button> */}
         </div>
 
         {/* Action buttons */}
         <div className="flex justify-end gap-4 mt-8">
-          <Button variant="outline" className="text-black" onClick={handleReset}>Reset</Button>
-          <Button className="bg-purple-600 hover:bg-purple-700" onClick={handleForm}>Run</Button>
+          <Button
+            variant="outline"
+            className="text-black"
+            onClick={handleReset}
+          >
+            Reset
+          </Button>
+          <Button
+            className="bg-purple-600 hover:bg-purple-700"
+            onClick={handleForm}
+          >
+            Run
+          </Button>
         </div>
       </div>
 
@@ -404,24 +521,50 @@ export default function Home() {
         <div className="mb-6 flex justify-between items-center">
           <div className="flex items-center">
             <h2 className="text-xl font-semibold mr-2">Result</h2>
-            <span className="bg-green-600 text-xs px-2 py-0.5 rounded">Completed</span>
+            <span className="bg-green-600 text-xs px-2 py-0.5 rounded">
+              Completed
+            </span>
           </div>
           <Button variant="outline" className="gap-2">
             Preview
           </Button>
         </div>
-
         {/* Results grid */}
         <div className="grid grid-cols-2 gap-4">
-          {/* Image placeholders - will be replaced with actual generated images */}
-          {[1, 2, 3, 4].map((index) => (
-            <div key={index} className="relative bg-gray-800 rounded-md aspect-[3/4]">
-              <Button variant="ghost" size="icon" className="absolute top-2 right-2 bg-black/40 h-8 w-8 rounded-full">
-                <Download size={16} />
-              </Button>
-            </div>
-          ))}
-        </div>
+          {resultImages.length === 0
+            ? [1, 2, 3, 4].map((index) => (
+                <div
+                  key={index}
+                  className="relative bg-gray-800 rounded-md aspect-[3/4]"
+                ></div>
+              ))
+            : resultImages.map((url, index) => (
+                <div
+                  key={index}
+                  className="relative bg-gray-800 rounded-md aspect-[3/4] overflow-hidden"
+                >
+                  <img
+                    src={url}
+                    alt={`Generated ${index + 1}`}
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                  <a
+                    href={url}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-2 right-2 bg-black/40 h-8 w-8 rounded-full"
+                    >
+                      <Download size={16} />
+                    </Button>
+                  </a>
+                </div>
+              ))}
+        </div>{" "}
       </div>
     </div>
   );
