@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import { fal } from "@fal-ai/client";
-export const maxDuration = 900; // 5 minutes;
+export const maxDuration = 800; // 5 minutes;
 
 // Set FAL API Key
 fal.config({
