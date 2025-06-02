@@ -25,6 +25,7 @@ export default function Home() {
     useState(0.5);
   const [resultImages, setResultImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [noOfImages, setNoOfImages] = useState(1);
 
   const handleForm = async () => {
     if (!prompt || !loraPath1 || !loraPath2) {
@@ -90,8 +91,8 @@ export default function Home() {
   const resetLoraScale2 = () => setLoraScale2(0.9);
   const resetInpaintingStyleLora = () => setInpaintingStyleLora("");
   const resetInpaintingStyleLoraScale = () => setInpaintingStyleLoraScale(0.6);
-  const resetInpaintingStyleLoraStrength = () =>
-    setInpaintingStyleLoraStrength(0.5);
+  const resetInpaintingStyleLoraStrength = () => setInpaintingStyleLoraStrength(0.5);
+  const resetNoOfImages = () => setNoOfImages(1);
 
   return (
     <div className="flex min-h-screen bg-[#1e1c1c] text-white">
@@ -528,6 +529,43 @@ export default function Home() {
               </div>
             </div> */}
           </div>
+          {/* Number of Images */}
+          <div className="mb-4">
+              <div className="flex items-center mb-2">
+                <label className="text-sm font-medium ml-4">No of images</label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-5 w-5 ml-2">
+                        <Info size={14} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Enter the number of images to generate</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="flex">
+                <Input
+                  className="flex-1 bg-[#1e1e1e] border border-gray-700"
+                  type="number"
+                  min={1}
+                  value={noOfImages}
+                  onChange={(e) => setNoOfImages(Number(e.target.value))}
+                  placeholder="Enter number of images..."
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="ml-2 text-black"
+                  onClick={resetNoOfImages} // <-- make sure this function exists
+                >
+                  <span className="sr-only">Reset</span>
+                  <span>↺</span>
+                </Button>
+              </div>
+            </div>
 
           {/* Add item button */}
           {/* <Button variant="outline" className="mt-2 text-black">
