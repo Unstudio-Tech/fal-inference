@@ -158,6 +158,8 @@ export async function POST(req: NextRequest) {
         actual_mask_url: actual_mask_s3_url,
       });
 
+      console.log('Pasted back final image : ', pasteRes.final_image_url);
+
       finalImageUrls.push(pasteRes.final_image_url);
     }
 
