@@ -222,7 +222,7 @@ export default function Home() {
                   onValueChange={(values) => setLoraScale1(values[0])}
                 />
               </div>
-              <div className="w-16">
+              <div className="w-20">
                 <Input
                   type="number"
                   min={0}
@@ -320,7 +320,7 @@ export default function Home() {
                   onValueChange={(values) => setLoraScale2(values[0])}
                 />
               </div>
-              <div className="w-16">
+              <div className="w-20">
                 <Input
                   type="number"
                   min={0}
@@ -409,7 +409,7 @@ export default function Home() {
                   }
                 />
               </div>
-              <div className="w-16">
+              <div className="w-20">
                 <Input
                   type="number"
                   min={0}
@@ -467,13 +467,13 @@ export default function Home() {
                   }
                 />
               </div>
-              <div className="w-16">
+              <div className="w-20">
                 <Input
                   type="number"
                   min={0}
                   max={1}
                   step={0.01}
-                  value={inpaintingStyleLoraScale}
+                  value={inpaintingCharacterLoraScale}
                   onChange={(e) =>
                     setInpaintingCharacterLoraScale(Number(e.target.value))
                   }
@@ -497,7 +497,7 @@ export default function Home() {
           <div className="mb-4">
             <div className="flex items-center mb-2">
               <label className="text-sm font-medium ml-4">
-                Inpainting style lora strength
+                Inpainting strength
               </label>
               <TooltipProvider>
                 <Tooltip>
@@ -528,7 +528,7 @@ export default function Home() {
                   }
                 />
               </div>
-              <div className="w-16">
+              <div className="w-20">
                 <Input
                   type="number"
                   min={0}
