@@ -15,21 +15,22 @@ import {
 export default function Home() {
   // State for form values
   const [prompt, setPrompt] = useState("");
-  const [loraPath1, setLoraPath1] = useState("");
-  const [loraScale1, setLoraScale1] = useState(0.9);
-  const [loraPath2, setLoraPath2] = useState("");
-  const [loraScale2, setLoraScale2] = useState(0.4);
+  const [characterLora, setcharacterLora] = useState("");
+  const [styleLora, setstyleLora] = useState("");
+  const [characterLoraScale, setcharacterLoraScale] = useState(0.9);
+  const [styleLoraScale, setStyleLoraScale] = useState(0.4);
   const [inpaintingStyleLora, setInpaintingStyleLora] = useState("");
   const [inpaintingStyleLoraScale, setInpaintingStyleLoraScale] = useState(0.6);
-  const [inpaintingCharacterLoraScale, setInpaintingCharacterLoraScale] = useState(0.6);
-  const [inpaintingStyleLoraStrength, setInpaintingStyleLoraStrength] = useState(0.5);
+  const [inpaintingCharacterLoraScale, setInpaintingCharacterLoraScale] =
+    useState(0.6);
+  const [inpaintingStyleLoraStrength, setInpaintingStyleLoraStrength] =
+    useState(0.5);
   const [resultImages, setResultImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [noOfImages, setNoOfImages] = useState(1);
 
-
   const handleForm = async () => {
-    if (!prompt || !loraPath1 || !loraPath2) {
+    if (!prompt || !characterLora || !styleLora) {
       alert("Please fill in all required fields");
       return;
     }
@@ -37,14 +38,18 @@ export default function Home() {
     const requestBody = {
       prompt,
       loraPaths: [
-        { loraPath: loraPath1, scale: loraScale1 },
-        { loraPath: loraPath2, scale: loraScale2 },
+        { loraPath: characterLora, scale: characterLoraScale },
+        { loraPath: styleLora, scale: styleLoraScale },
         // { loraPath: inpaintingStyleLora, scale: inpaintingStyleLoraScale },
       ],
       numberOfImages: Number(noOfImages), // or any number you want to generate
       strength: inpaintingStyleLoraStrength,
+      characterLora,
+      characterLoraScale,
+      styleLora,
+      styleLoraScale,
       inpaintingStyleLoraScale,
-      inpaintingCharacterLoraScale
+      inpaintingCharacterLoraScale,
     };
 
     try {
@@ -77,23 +82,33 @@ export default function Home() {
 
   const handleReset = () => {
     setPrompt("");
-    setLoraPath1("");
-    setLoraScale1(0.6);
-    setLoraPath2("");
-    setLoraScale2(0.9);
+    setcharacterLora("");
+    setcharacterLoraScale(0.6);
+    setstyleLora("");
+    setStyleLoraScale(0.9);
     setInpaintingStyleLora("");
     setInpaintingStyleLoraScale(0.6);
     setInpaintingStyleLoraStrength(0.5);
   };
 
   // Individual reset functions
-  const resetLoraPath1 = () => setLoraPath1("");
-  const resetLoraScale1 = () => setLoraScale1(0.6);
-  const resetLoraPath2 = () => setLoraPath2("");
-  const resetLoraScale2 = () => setLoraScale2(0.9);
-  const resetInpaintingStyleLora = () => setInpaintingStyleLora("");
+  const resetCharacterLoraPath = () => {
+    setcharacterLora("");
+  };
+  const resetCharacterLoraScale = () => {
+    setcharacterLoraScale(0.6);
+  };
+  const resetStyleLoraPath = () => {
+    setstyleLora("");
+  };
+  const resetStyleLoraScale = () => {
+    setStyleLoraScale(0.5);
+  };
   const resetInpaintingStyleLoraScale = () => setInpaintingStyleLoraScale(0.6);
-  const resetInpaintingStyleLoraStrength = () => setInpaintingStyleLoraStrength(0.5);
+  const resetInpaintingStyleLoraStrength = () =>
+    setInpaintingStyleLoraStrength(0.5);
+  const resetInpaintingCharacterStyleLoraStrength = () =>
+    setInpaintingCharacterLoraScale(0.6);
   const resetNoOfImages = () => setNoOfImages(1);
 
   return (
@@ -173,15 +188,15 @@ export default function Home() {
             <div className="flex">
               <Input
                 className="flex-1 bg-[#1e1e1e] border border-gray-700"
-                value={loraPath1}
-                onChange={(e) => setLoraPath1(e.target.value)}
+                value={characterLora}
+                onChange={(e) => setcharacterLora(e.target.value)}
                 placeholder="https://v3.fal.media/files/monkey/..."
               />
               <Button
                 variant="outline"
                 size="icon"
                 className="ml-2"
-                onClick={resetLoraPath1}
+                onClick={resetCharacterLoraPath}
               >
                 <span className="sr-only">Delete</span>
                 <span>🗑️</span>
@@ -218,8 +233,8 @@ export default function Home() {
                   defaultValue={[0.9]}
                   max={1}
                   step={0.01}
-                  value={[loraScale1]}
-                  onValueChange={(values) => setLoraScale1(values[0])}
+                  value={[characterLoraScale]}
+                  onValueChange={(values) => setcharacterLoraScale(values[0])}
                 />
               </div>
               <div className="w-20">
@@ -228,8 +243,10 @@ export default function Home() {
                   min={0}
                   max={1}
                   step={0.01}
-                  value={loraScale1}
-                  onChange={(e) => setLoraScale1(Number(e.target.value))}
+                  value={characterLoraScale}
+                  onChange={(e) =>
+                    setcharacterLoraScale(Number(e.target.value))
+                  }
                   className="bg-[#1e1e1e] border border-gray-700"
                 />
               </div>
@@ -237,7 +254,7 @@ export default function Home() {
                 variant="outline"
                 size="icon"
                 className="ml-2 text-black"
-                onClick={resetLoraScale1}
+                onClick={resetCharacterLoraScale}
               >
                 <span className="sr-only">Reset</span>
                 <span>↺</span>
@@ -271,15 +288,15 @@ export default function Home() {
             <div className="flex">
               <Input
                 className="flex-1 bg-[#1e1e1e] border border-gray-700"
-                value={loraPath2}
-                onChange={(e) => setLoraPath2(e.target.value)}
+                value={styleLora}
+                onChange={(e) => setstyleLora(e.target.value)}
                 placeholder="https://v3.fal.media/files/monkey/..."
               />
               <Button
                 variant="outline"
                 size="icon"
                 className="ml-2 text-black"
-                onClick={resetLoraPath2}
+                onClick={resetStyleLoraPath}
               >
                 <span className="sr-only">Delete</span>
                 <span>🗑️</span>
@@ -316,8 +333,8 @@ export default function Home() {
                   defaultValue={[0.4]}
                   max={1}
                   step={0.01}
-                  value={[loraScale2]}
-                  onValueChange={(values) => setLoraScale2(values[0])}
+                  value={[styleLoraScale]}
+                  onValueChange={(values) => setStyleLoraScale(values[0])}
                 />
               </div>
               <div className="w-20">
@@ -326,8 +343,8 @@ export default function Home() {
                   min={0}
                   max={1}
                   step={0.01}
-                  value={loraScale2}
-                  onChange={(e) => setLoraScale2(Number(e.target.value))}
+                  value={styleLoraScale}
+                  onChange={(e) => setStyleLoraScale(Number(e.target.value))}
                   className="bg-[#1e1e1e] border border-gray-700"
                 />
               </div>
@@ -335,7 +352,7 @@ export default function Home() {
                 variant="outline"
                 size="icon"
                 className="ml-2 text-black"
-                onClick={resetLoraScale2}
+                onClick={resetStyleLoraScale}
               >
                 <span className="sr-only">Reset</span>
                 <span>↺</span>
@@ -373,6 +390,65 @@ export default function Home() {
               </Button>
             </div>
           </div> */}
+        {/* Inpainting Character Style Lora Scale */}
+          <div className="mb-4">
+            <div className="flex items-center mb-2">
+              <label className="text-sm font-medium ml-4">
+                Inpainting Character style lora scale
+              </label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 ml-2"
+                    >
+                      <Info size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Adjust the scale of the inpainting Character LoRA</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="flex items-center">
+              <div className="flex-1 mr-2">
+                <Slider
+                  defaultValue={[0.6]}
+                  max={1}
+                  step={0.01}
+                  value={[inpaintingCharacterLoraScale]}
+                  onValueChange={(values) =>
+                    setInpaintingCharacterLoraScale(values[0])
+                  }
+                />
+              </div>
+              <div className="w-20">
+                <Input
+                  type="number"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={inpaintingCharacterLoraScale}
+                  onChange={(e) =>
+                    setInpaintingCharacterLoraScale(Number(e.target.value))
+                  }
+                  className="bg-[#1e1e1e] border border-gray-700"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="ml-2 text-black"
+                onClick={resetInpaintingStyleLoraScale}
+              >
+                <span className="sr-only">Reset</span>
+                <span>↺</span>
+              </Button>
+            </div>
+          </div>
 
           {/* Inpainting Style LoRA Scale */}
           <div className="mb-4">
@@ -433,65 +509,6 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <div className="mb-4">
-            <div className="flex items-center mb-2">
-              <label className="text-sm font-medium ml-4">
-                Inpainting Character style lora scale
-              </label>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-5 w-5 ml-2"
-                    >
-                      <Info size={14} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Adjust the scale of the inpainting Character LoRA</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex items-center">
-              <div className="flex-1 mr-2">
-                <Slider
-                  defaultValue={[0.6]}
-                  max={1}
-                  step={0.01}
-                  value={[inpaintingCharacterLoraScale]}
-                  onValueChange={(values) =>
-                    setInpaintingCharacterLoraScale(values[0])
-                  }
-                />
-              </div>
-              <div className="w-20">
-                <Input
-                  type="number"
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={inpaintingCharacterLoraScale}
-                  onChange={(e) =>
-                    setInpaintingCharacterLoraScale(Number(e.target.value))
-                  }
-                  className="bg-[#1e1e1e] border border-gray-700"
-                />
-              </div>
-              <Button
-                variant="outline"
-                size="icon"
-                className="ml-2 text-black"
-                onClick={resetInpaintingStyleLoraScale}
-              >
-                <span className="sr-only">Reset</span>
-                <span>↺</span>
-              </Button>
-            </div>
-          </div>
-          
 
           {/* Inpainting Style LoRA Strength */}
           <div className="mb-4">
@@ -592,47 +609,49 @@ export default function Home() {
           </div>
           {/* Number of Images */}
           <div className="mb-4">
-              <div className="flex items-center mb-2">
-                <label className="text-sm font-medium ml-4">No of images</label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-5 w-5 ml-2">
-                        <Info size={14} />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Enter the number of images to generate</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <div className="flex">
-                <Input
-                  className="flex-1 bg-[#1e1e1e] border border-gray-700"
-                  type="number"
-                  min={1}
-                  value={noOfImages}
-                  onChange={(e) =>  
-                  { if(e.target.value > "4" || e.target.value < "0")
-                      return;
-                    
-                    setNoOfImages(Number(e.target.value))
-                  }
-                  }
-                  placeholder="Enter number of images..."
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="ml-2 text-black"
-                  onClick={resetNoOfImages} // <-- make sure this function exists
-                >
-                  <span className="sr-only">Reset</span>
-                  <span>↺</span>
-                </Button>
-              </div>
+            <div className="flex items-center mb-2">
+              <label className="text-sm font-medium ml-4">No of images</label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 ml-2"
+                    >
+                      <Info size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Enter the number of images to generate</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
+            <div className="flex">
+              <Input
+                className="flex-1 bg-[#1e1e1e] border border-gray-700"
+                type="number"
+                min={1}
+                value={noOfImages}
+                onChange={(e) => {
+                  if (e.target.value > "4" || e.target.value < "0") return;
+
+                  setNoOfImages(Number(e.target.value));
+                }}
+                placeholder="Enter number of images..."
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="ml-2 text-black"
+                onClick={resetNoOfImages} // <-- make sure this function exists
+              >
+                <span className="sr-only">Reset</span>
+                <span>↺</span>
+              </Button>
+            </div>
+          </div>
 
           {/* Add item button */}
           {/* <Button variant="outline" className="mt-2 text-black">
