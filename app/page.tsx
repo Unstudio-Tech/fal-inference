@@ -16,7 +16,7 @@ export default function Home() {
   // State for form values
   const [prompt, setPrompt] = useState("");
   const [characterLora, setcharacterLora] = useState("");
-  const [styleLora, setstyleLora] = useState("");
+  const [styleLora, setstyleLora] = useState("https://v3.fal.media/files/monkey/aFFv3yM2x7v_0t8-ZxdkG_pytorch_lora_weights.safetensors");
   const [characterLoraScale, setcharacterLoraScale] = useState(0.9);
   const [styleLoraScale, setStyleLoraScale] = useState(0.4);
   const [inpaintingStyleLora, setInpaintingStyleLora] = useState("");
