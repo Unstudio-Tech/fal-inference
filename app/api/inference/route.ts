@@ -148,12 +148,23 @@ export async function POST(req: NextRequest) {
         logs: true,
       });
 
-      const inpaintImg = paintRes.data?.images?.[0]?.url;
-      console.log("Inpainting result : ", inpaintImg);
-      if (!inpaintImg) continue;
+      const hasNSFW = paintRes.data?.has_nsfw_concepts?.[0] === true;
+      let imageToPaste = cropped_image_s3_url;
+
+      if (hasNSFW) {
+        console.warn("⚠️ NSFW content detected in inpainting result. Using original cropped image.");
+      } else {
+        const inpaintImg = paintRes.data?.images?.[0]?.url;
+        if (inpaintImg) {
+          imageToPaste = inpaintImg;
+        } else {
+          console.warn("⚠️ Inpainting result missing. Skipping this image.");
+          continue;
+        }
+      }
 
       const { data: pasteRes } = await axios.post(PASTE_BACK_ENDPOINT, {
-        inpaint_url: inpaintImg,
+        inpaint_url: imageToPaste,
         upscaled_url: upscaled_image_s3_url,
         actual_mask_url: actual_mask_s3_url,
       });
