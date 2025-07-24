@@ -18,19 +18,19 @@ export default function Home() {
   const [characterLora, setcharacterLora] = useState("");
   const [styleLora, setstyleLora] = useState("https://v3.fal.media/files/monkey/aFFv3yM2x7v_0t8-ZxdkG_pytorch_lora_weights.safetensors");
   const [characterLoraScale, setcharacterLoraScale] = useState(0.9);
-  const [styleLoraScale, setStyleLoraScale] = useState(0.4);
+  const [styleLoraScale, setStyleLoraScale] = useState(0.6);
   const [inpaintingStyleLora, setInpaintingStyleLora] = useState("");
   const [inpaintingStyleLoraScale, setInpaintingStyleLoraScale] = useState(0.6);
   const [inpaintingCharacterLoraScale, setInpaintingCharacterLoraScale] =
-    useState(0.6);
+    useState(0.9);
   const [inpaintingStyleLoraStrength, setInpaintingStyleLoraStrength] =
-    useState(0.5);
+    useState(0.3);
   const [resultImages, setResultImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [noOfImages, setNoOfImages] = useState(1);
+  const [noOfImages, setNoOfImages] = useState(2);
 
   const handleForm = async () => {
-    if (!prompt || !characterLora || !styleLora) {
+    if (!prompt || !characterLora ) {
       alert("Please fill in all required fields");
       return;
     }

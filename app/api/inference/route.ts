@@ -9,8 +9,8 @@ fal.config({
 });
 
 // Constants
-const GEN_MASK_ENDPOINT = "http://35.224.44.188:8000/generate-mask/";
-const PASTE_BACK_ENDPOINT = "http://35.224.44.188:8000/paste-back/";
+const GEN_MASK_ENDPOINT = "http://52.205.125.1/generate-mask/";
+const PASTE_BACK_ENDPOINT = "http://52.205.125.1/paste-back/";
 
 interface LoraInput {
   loraPath: string;
@@ -59,7 +59,11 @@ export async function POST(req: NextRequest) {
    
     //console.log(loraPathsForInference)
 
-    const loraPathsforInference = [{path:characterLora, scale:characterLoraScale}, {path:styleLora, scale:styleLoraScale}]
+    var loraPathsforInference = [{path:characterLora, scale:characterLoraScale}]
+    if(styleLora.trim().length > 0){
+      let styeLoraObject = {path:styleLora, scale:styleLoraScale}
+      loraPathsforInference.push(styeLoraObject)
+    }
     console.log('Lora paths for inference (1st character lora , 2nd style lora) : ')
     console.log(loraPathsforInference);
     const imageGenerationPromises = Array.from(
@@ -101,7 +105,12 @@ export async function POST(req: NextRequest) {
     // }));
 
     const finalImageUrls: string[] = [];
-    const loraPathsForInpainting = [{path:characterLora, scale:inpaintingCharacterLoraScale}, {path:styleLora, scale:inpaintingStyleLoraScale}];
+    const loraPathsForInpainting = [{path:characterLora, scale:inpaintingCharacterLoraScale}];
+
+  if(styleLora.trim().length > 0){
+      let styeLoraObject = {path:styleLora, scale:styleLoraScale}
+      loraPathsForInpainting.push(styeLoraObject)
+    }
     console.log("Lora paths for inpainting ", loraPathsForInpainting);
 
     for (const imageUrl of rawImageUrls) {
