@@ -9,8 +9,8 @@ fal.config({
 });
 
 // Constants
-const GEN_MASK_ENDPOINT = "http://52.205.125.1/generate-mask/";
-const PASTE_BACK_ENDPOINT = "http://52.205.125.1/paste-back/";
+const GEN_MASK_ENDPOINT = "http://18.206.182.174/generate-mask/";
+const PASTE_BACK_ENDPOINT = "http://18.206.182.174/paste-back/";
 
 interface LoraInput {
   loraPath: string;
