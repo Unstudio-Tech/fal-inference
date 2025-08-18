@@ -28,6 +28,7 @@ interface RequestBody {
   characterLoraScale: number;
   styleLora: string;
   styleLoraScale: number;
+  seed?: number;
 }
 
 interface MaskAPIResponse {
@@ -54,6 +55,7 @@ export async function POST(req: NextRequest) {
       characterLoraScale,
       styleLora,
       styleLoraScale,
+      seed,
     } = body;
     //console.log('Lora paths initially : ', loraPaths)
    
@@ -69,13 +71,17 @@ export async function POST(req: NextRequest) {
     const imageGenerationPromises = Array.from(
       { length: numberOfImages },
       (_, i) => {
-        const payload = {
+        const payload: any = {
           prompt,
           loras: loraPathsforInference,
           guidance_scale: 3.5,
           image_size: { width: 800, height: 1200 },
           num_inference_steps: 28,
         };
+
+        if (typeof seed === "number" && seed !== 0) {
+          payload.seed = seed;
+        }
 
         // console.log("Payload ")
         //  console.log(payload)
@@ -177,6 +183,8 @@ export async function POST(req: NextRequest) {
         upscaled_url: upscaled_image_s3_url,
         actual_mask_url: actual_mask_s3_url,
       });
+
+      console.log(pasteRes)
 
       console.log('Pasted back final image : ', pasteRes.final_image_url);
 

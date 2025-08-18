@@ -18,17 +18,19 @@ export default function Home() {
   const [characterLora, setcharacterLora] = useState("");
   const [styleLora, setstyleLora] = useState("https://v3.fal.media/files/monkey/aFFv3yM2x7v_0t8-ZxdkG_pytorch_lora_weights.safetensors");
   const [characterLoraScale, setcharacterLoraScale] = useState(1.2);
-  const [styleLoraScale, setStyleLoraScale] = useState(0.3);
+  const [styleLoraScale, setStyleLoraScale] = useState(0.1);
   const [inpaintingStyleLora, setInpaintingStyleLora] = useState("");
   const [inpaintingStyleLoraScale, setInpaintingStyleLoraScale] = useState(0.6);
   const [inpaintingCharacterLoraScale, setInpaintingCharacterLoraScale] =
     useState(0.9);
   const [inpaintingStyleLoraStrength, setInpaintingStyleLoraStrength] =
-    useState(0.3);
+    useState(0.35);
   const [resultImages, setResultImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [noOfImages, setNoOfImages] = useState(2);
+  const [seed, setSeed] = useState(0);
 
+  
   const handleForm = async () => {
     if (!prompt || !characterLora ) {
       alert("Please fill in all required fields");
@@ -50,6 +52,7 @@ export default function Home() {
       styleLoraScale,
       inpaintingStyleLoraScale,
       inpaintingCharacterLoraScale,
+      seed,
     };
 
     try {
@@ -89,6 +92,7 @@ export default function Home() {
     setInpaintingStyleLora("");
     setInpaintingStyleLoraScale(0.6);
     setInpaintingStyleLoraStrength(0.5);
+    setSeed(0);
   };
 
   // Individual reset functions
@@ -110,6 +114,7 @@ export default function Home() {
   const resetInpaintingCharacterStyleLoraStrength = () =>
     setInpaintingCharacterLoraScale(0.6);
   const resetNoOfImages = () => setNoOfImages(1);
+  const resetSeed = () => setSeed(0);
 
   return (
     <div className="flex min-h-screen bg-[#1e1c1c] text-white">
@@ -646,6 +651,48 @@ export default function Home() {
                 size="icon"
                 className="ml-2 text-black"
                 onClick={resetNoOfImages} // <-- make sure this function exists
+              >
+                <span className="sr-only">Reset</span>
+                <span>↺</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Seed */}
+          <div className="mb-4">
+            <div className="flex items-center mb-2">
+              <label className="text-sm font-medium ml-4">Seed</label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 ml-2"
+                    >
+                      <Info size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Set a seed for reproducible results. Use 0 for random.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="flex">
+              <Input
+                className="flex-1 bg-[#1e1e1e] border border-gray-700"
+                type="number"
+                min={0}
+                value={seed}
+                onChange={(e) => setSeed(Number(e.target.value))}
+                placeholder="0 (random)"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="ml-2 text-black"
+                onClick={resetSeed}
               >
                 <span className="sr-only">Reset</span>
                 <span>↺</span>
