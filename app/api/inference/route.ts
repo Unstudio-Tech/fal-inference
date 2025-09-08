@@ -10,6 +10,7 @@ fal.config({
 
 // Constants
 const GEN_MASK_ENDPOINT = "http://18.206.182.174/generate-mask/";
+const NEW_MASK_ENDPOINT = "http://52.206.97.181:8000/mask/from-url";
 const PASTE_BACK_ENDPOINT = "http://18.206.182.174/paste-back/";
 
 interface LoraInput {
@@ -37,6 +38,10 @@ interface MaskAPIResponse {
   cropped_image_mask_s3_url: string;
   actual_mask_s3_url: string;
   cropped_image_mask_dims: { width: number; height: number };
+}
+
+interface NewMaskAPIResponse {
+  image_url: string;
 }
 
 //export const maxDuration = 900; // 15 minutes timeout
@@ -150,12 +155,23 @@ export async function POST(req: NextRequest) {
       const { width, height } = cropped_image_mask_dims;
       console.log("Starting inpainting");
 
+      // Call new mask endpoint to get mask from cropped image
+      console.log("Calling new mask endpoint with cropped image");
+      const { data: newMaskData } = await axios.post<NewMaskAPIResponse>(
+        NEW_MASK_ENDPOINT,
+        {
+          url: cropped_image_s3_url,
+        }
+      );
+
+      const maskUrl = newMaskData.image_url;
+      console.log("Received mask URL from new endpoint:", maskUrl);
   
       const paintRes = await fal.subscribe("fal-ai/flux-lora/inpainting", {
         input: {
           prompt: "UNST, a person standing against a background",
           image_url: cropped_image_s3_url,
-          mask_url: cropped_image_mask_s3_url,
+          mask_url: maskUrl,
           loras: loraPathsForInpainting,
           strength,
           image_size: { width, height },
