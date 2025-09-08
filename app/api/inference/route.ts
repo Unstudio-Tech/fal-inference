@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
         const payload: any = {
           prompt,
           loras: loraPathsforInference,
-          guidance_scale: 2.5,
+          guidance_scale: 3.5,
           image_size: { width: 800, height: 1200 },
           num_inference_steps: 28,
         };
