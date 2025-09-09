@@ -14,7 +14,9 @@ import {
 
 export default function Home() {
   // State for form values
+  const [inputMode, setInputMode] = useState<"prompt" | "image">("prompt");
   const [prompt, setPrompt] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [characterLora, setcharacterLora] = useState("");
   const [styleLora, setstyleLora] = useState("https://v3.fal.media/files/lion/xL15uZku8d1wNj98Z-cSC_pytorch_lora_weights.safetensors");
   const [characterLoraScale, setcharacterLoraScale] = useState(1.2);
@@ -32,19 +34,23 @@ export default function Home() {
 
   
   const handleForm = async () => {
-    if (!prompt || !characterLora ) {
-      alert("Please fill in all required fields");
+    // Validate based on input mode
+    if (inputMode === "prompt" && (!prompt || !characterLora)) {
+      alert("Please fill in prompt and character LoRA fields");
       return;
     }
+    if (inputMode === "image" && (!imageUrl || !characterLora)) {
+      alert("Please fill in image URL and character LoRA fields");
+      return;
+    }
+
     setIsLoading(true); // Start loading
-    const requestBody = {
-      prompt,
+    
+    const baseRequestBody = {
       loraPaths: [
         { loraPath: characterLora, scale: characterLoraScale },
         { loraPath: styleLora, scale: styleLoraScale },
-        // { loraPath: inpaintingStyleLora, scale: inpaintingStyleLoraScale },
       ],
-      numberOfImages: Number(noOfImages), // or any number you want to generate
       strength: inpaintingStyleLoraStrength,
       characterLora,
       characterLoraScale,
@@ -55,8 +61,26 @@ export default function Home() {
       seed,
     };
 
+    let requestBody;
+    let apiEndpoint;
+
+    if (inputMode === "prompt") {
+      requestBody = {
+        ...baseRequestBody,
+        prompt,
+        numberOfImages: Number(noOfImages),
+      };
+      apiEndpoint = "/api/inference";
+    } else {
+      requestBody = {
+        ...baseRequestBody,
+        imageUrl,
+      };
+      apiEndpoint = "/api/inference-image";
+    }
+
     try {
-      const response = await fetch("/api/inference", {
+      const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -73,7 +97,6 @@ export default function Home() {
 
       const data = await response.json();
       console.log("✅ Generated image URLs:", data.imageUrls);
-      // TODO: Set to state for preview display
       setResultImages(data.imageUrls);
     } catch (error) {
       console.error("❌ Fetch error:", error);
@@ -84,7 +107,9 @@ export default function Home() {
   };
 
   const handleReset = () => {
+    setInputMode("prompt");
     setPrompt("");
+    setImageUrl("");
     setcharacterLora("");
     setcharacterLoraScale(0.6);
     setstyleLora("");
@@ -124,10 +149,10 @@ export default function Home() {
           <h2 className="text-xl font-semibold">Input</h2>
         </div>
 
-        {/* Prompt */}
+        {/* Input Mode Toggle */}
         <div className="mb-6">
           <div className="flex items-center mb-2">
-            <label className="font-medium">Prompt</label>
+            <label className="font-medium">Input Mode</label>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -136,18 +161,79 @@ export default function Home() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Enter your image generation prompt</p>
+                  <p>Choose between text prompt or image URL input</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-          <textarea
-            className="w-full h-24 bg-[#1e1e1e] border border-gray-700 rounded-md p-3 text-sm"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Enter your prompt here..."
-          />
+          <div className="flex gap-2">
+            <Button
+              variant={inputMode === "prompt" ? "default" : "outline"}
+              onClick={() => setInputMode("prompt")}
+              className={inputMode === "prompt" ? "bg-purple-500 hover:bg-purple-700" : "text-black"}
+            >
+              Text Prompt
+            </Button>
+            <Button
+              variant={inputMode === "image" ? "default" : "outline"}
+              onClick={() => setInputMode("image")}
+              className={inputMode === "image" ? "bg-purple-500 hover:bg-purple-700" : "text-black"}
+            >
+              Image URL
+            </Button>
+          </div>
         </div>
+
+        {/* Prompt or Image URL */}
+        {inputMode === "prompt" ? (
+          <div className="mb-6">
+            <div className="flex items-center mb-2">
+              <label className="font-medium">Prompt</label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-5 w-5 ml-2">
+                      <Info size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Enter your image generation prompt</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <textarea
+              className="w-full h-24 bg-[#1e1e1e] border border-gray-700 rounded-md p-3 text-sm"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Enter your prompt here..."
+            />
+          </div>
+        ) : (
+          <div className="mb-6">
+            <div className="flex items-center mb-2">
+              <label className="font-medium">Image URL</label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-5 w-5 ml-2">
+                      <Info size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Enter the URL of the image you want to process</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <Input
+              className="w-full bg-[#1e1e1e] border border-gray-700"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+        )}
 
         {/* Loras section */}
         <div className="mb-6">
@@ -612,51 +698,53 @@ export default function Home() {
               </div>
             </div> */}
           </div>
-          {/* Number of Images */}
-          <div className="mb-4">
-            <div className="flex items-center mb-2">
-              <label className="text-sm font-medium ml-4">No of images</label>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-5 w-5 ml-2"
-                    >
-                      <Info size={14} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Enter the number of images to generate</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex">
-              <Input
-                className="flex-1 bg-[#1e1e1e] border border-gray-700"
-                type="number"
-                min={1}
-                value={noOfImages}
-                onChange={(e) => {
-                  if (e.target.value > "4" || e.target.value < "0") return;
+          {/* Number of Images - Only show for prompt mode */}
+          {inputMode === "prompt" && (
+            <div className="mb-4">
+              <div className="flex items-center mb-2">
+                <label className="text-sm font-medium ml-4">No of images</label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5 ml-2"
+                      >
+                        <Info size={14} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Enter the number of images to generate</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="flex">
+                <Input
+                  className="flex-1 bg-[#1e1e1e] border border-gray-700"
+                  type="number"
+                  min={1}
+                  value={noOfImages}
+                  onChange={(e) => {
+                    if (e.target.value > "4" || e.target.value < "0") return;
 
-                  setNoOfImages(Number(e.target.value));
-                }}
-                placeholder="Enter number of images..."
-              />
-              <Button
-                variant="outline"
-                size="icon"
-                className="ml-2 text-black"
-                onClick={resetNoOfImages} // <-- make sure this function exists
-              >
-                <span className="sr-only">Reset</span>
-                <span>↺</span>
-              </Button>
+                    setNoOfImages(Number(e.target.value));
+                  }}
+                  placeholder="Enter number of images..."
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="ml-2 text-black"
+                  onClick={resetNoOfImages} // <-- make sure this function exists
+                >
+                  <span className="sr-only">Reset</span>
+                  <span>↺</span>
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Seed */}
           <div className="mb-4">
