@@ -3,7 +3,7 @@ import axios from 'axios';
 import { S3Service } from './s3Service';
 
 // Gemini API Configuration
-const API_KEY = 'AIzaSyADL2_UteUw6wy_U2xWcf7MQRKgtxjjkWk';
+const API_KEY = process.env.GEMINI_KEY;
 const MODEL = 'gemini-2.5-flash-image-preview';
 const TEMPERATURE = 1;
 const CANDIDATES = 1;
