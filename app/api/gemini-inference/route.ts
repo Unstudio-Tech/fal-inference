@@ -4,7 +4,7 @@ import { fal } from "@fal-ai/client";
 import { generateGeminiInference } from "../../../lib/geminiService";
 import { standardizeImages } from "../../../lib/imageStandardization";
 
-export const maxDuration = 900; // 15 minutes
+export const maxDuration = 800; // 15 minutes
 
 // Set FAL API Key
 fal.config({
