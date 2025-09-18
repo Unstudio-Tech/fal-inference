@@ -13,7 +13,7 @@ fal.config({
 
 // Constants
 const GEN_MASK_ENDPOINT = "http://18.206.182.174/generate-mask/";
-const NEW_MASK_ENDPOINT = "http://52.206.97.181:8000/mask/from-url";
+const NEW_MASK_ENDPOINT = "http://52.206.97.181:8000/mask/hair-neck-face-square/from-url";
 const PASTE_BACK_ENDPOINT = "http://18.206.182.174/paste-back/";
 
 interface LoraConfig {
