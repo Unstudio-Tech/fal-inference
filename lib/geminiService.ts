@@ -23,13 +23,15 @@ interface GeminiCallResult {
  * Generate image using Gemini API with custom prompt and image URLs
  * @param prompt - The text prompt for image generation
  * @param imageUrls - Array of image URLs
+ * @param temperature - Temperature parameter for the model (default: 1)
  * @returns Promise<GeminiCallResult>
  */
 export async function generateGeminiInference(
   prompt: string,
-  imageUrls: string[]
+  imageUrls: string[],
+  temperature: number = 1
 ): Promise<GeminiCallResult> {
-  return makeGeminiApiCall(prompt, imageUrls, 1);
+  return makeGeminiApiCall(prompt, imageUrls, 1, 0, temperature);
 }
 
 /**
@@ -38,13 +40,15 @@ export async function generateGeminiInference(
  * @param imageUrls - Array of image URLs (face and fullbody)
  * @param callNumber - Call number for tracking
  * @param retryCount - Current retry attempt (default: 0)
+ * @param temperature - Temperature parameter for the model (default: 1)
  * @returns Promise<GeminiCallResult>
  */
 export async function makeGeminiApiCall(
   prompt: string,
   imageUrls: string[],
   callNumber: number,
-  retryCount: number = 0
+  retryCount: number = 0,
+  temperature: number = 1
 ): Promise<GeminiCallResult> {
   const startTime = new Date();
   const maxRetries = 2; // Maximum 2 retries (3 total attempts)
@@ -117,7 +121,7 @@ export async function makeGeminiApiCall(
       model: MODEL,
       contents: [{ parts }],
       config: {
-        temperature: TEMPERATURE,
+        temperature: temperature,
         candidateCount: CANDIDATES
       }
     });
@@ -188,7 +192,7 @@ export async function makeGeminiApiCall(
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
       // Retry the call
-      return makeGeminiApiCall(prompt, imageUrls, callNumber, retryCount + 1);
+      return makeGeminiApiCall(prompt, imageUrls, callNumber, retryCount + 1, temperature);
     }
 
     return {

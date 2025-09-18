@@ -27,6 +27,7 @@ interface RequestBody {
   characterLora: LoraConfig;
   styleLora: LoraConfig;
   inpaint_strength: number;
+  temperature?: number;
 }
 
 interface MaskAPIResponse {
@@ -54,6 +55,7 @@ export async function POST(req: NextRequest) {
       characterLora,
       styleLora,
       inpaint_strength,
+      temperature = 1,
     } = body;
 
     console.log('🚀 Starting Gemini-based inference workflow');
@@ -62,10 +64,11 @@ export async function POST(req: NextRequest) {
     console.log('🎭 Character LoRA:', characterLora);
     console.log('🎨 Style LoRA:', styleLora);
     console.log('💪 Inpaint strength:', inpaint_strength);
+    console.log('🌡️ Temperature:', temperature);
 
     // Step 1: Generate images using Gemini inference
     console.log('📌 Step 1: Running Gemini inference...');
-    const geminiResult = await generateGeminiInference(prompt, image_urls);
+    const geminiResult = await generateGeminiInference(prompt, image_urls, temperature);
     
     if (!geminiResult.success || !geminiResult.imageUrls || geminiResult.imageUrls.length === 0) {
       throw new Error(`Gemini inference failed: ${geminiResult.error || 'No images generated'}`);
