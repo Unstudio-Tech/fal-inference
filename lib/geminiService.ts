@@ -113,8 +113,41 @@ export async function makeGeminiApiCall(
       })
     );
 
+    const prompt_json = {
+      description: prompt,
+      task: "generate_image",
+      style: {
+        primary: "photorealistic",
+        rendering_quality: "high-resolution, 4k",
+        lighting: "studio",
+      },
+      technical: {
+        camera_settings: {
+          depth_of_field: "shallow",
+          focal_length: "85mm",
+          aperture: "f/1.8",
+        },
+        resolution: "professional quality, 8K HDR",
+      },
+      materials: {
+        skin: "pores, natural imperfections",
+        fabric: "thread patterns, realistic drape",
+      },
+      composition: {
+        perspective: "photography composition rules",
+        framing: "professional positioning",
+      },
+      quality: {
+        include:
+          "hyperrealistic, photographic quality, studio lighting, authentic textures",
+        avoid: "unrealistic proportions, oversaturated colors",
+      },
+    };
+
+    const promptString = JSON.stringify(prompt_json);
+
     // Prepare the content parts
-    const parts = [{ text: prompt }, ...imageParts];
+    const parts = [...imageParts, { text: promptString }];
 
     // Generate content using the correct API
     const response = await ai.models.generateContent({
