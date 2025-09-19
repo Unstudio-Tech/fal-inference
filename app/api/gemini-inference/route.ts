@@ -28,6 +28,7 @@ interface RequestBody {
   styleLora: LoraConfig;
   inpaint_strength: number;
   temperature?: number;
+  inpaint_prompt?: string;
 }
 
 interface MaskAPIResponse {
@@ -56,6 +57,7 @@ export async function POST(req: NextRequest) {
       styleLora,
       inpaint_strength,
       temperature = 1,
+      inpaint_prompt = "UNST, a clear and sharp portrait of a person with natural facial features, open eyes, symmetrical face, realistic expression, no distortions, photorealistic skin texture. The person is wearing a round neck white t-shirt, standing against a plain background.",
     } = body;
 
     console.log('🚀 Starting Gemini-based inference workflow');
@@ -65,6 +67,7 @@ export async function POST(req: NextRequest) {
     console.log('🎨 Style LoRA:', styleLora);
     console.log('💪 Inpaint strength:', inpaint_strength);
     console.log('🌡️ Temperature:', temperature);
+    console.log('🎨 Inpaint prompt:', inpaint_prompt);
 
     // Step 1: Generate images using Gemini inference
     console.log('📌 Step 1: Running Gemini inference...');
@@ -141,7 +144,7 @@ export async function POST(req: NextRequest) {
         console.log('🎨 Step 5: Starting FAL inpainting...');
         const paintRes = await fal.subscribe("fal-ai/flux-lora/inpainting", {
           input: {
-            prompt: "UNST, a person standing against a background",
+            prompt: inpaint_prompt,
             image_url: cropped_image_s3_url,
             mask_url: maskUrl,
             loras: loraPathsForInpainting,
